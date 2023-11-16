@@ -1,6 +1,6 @@
-# sd-webui-samplers-scheduler Seniorious
+# sd-webui-samplers-scheduler Seniorious for v1.6.x
 
-## Introduce
+## Introduction
 A samplers scheduler which can apply different sampler in diffrent generation steps,  
 
 I hope it will be helpful to achieve a balance between generation speed and image quality.
@@ -8,7 +8,9 @@ I hope it will be helpful to achieve a balance between generation speed and imag
 Our paper on arXiv: [Sampler Scheduler for Diffusion Models](https://arxiv.org/abs/2311.06845)  
 
 ## Requirement
-SD WebUI Version <= 1.5.2  
+SD WebUI Version >= 1.6.0  
+
+(For version <= 1.5.2, please use https://github.com/Carzit/sd-webui-samplers-scheduler)
 
 ## How to use
 This repository is a extension for sd webui. Just place it in the `extension` folder!😉  
