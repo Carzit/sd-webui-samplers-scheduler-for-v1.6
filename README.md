@@ -58,14 +58,20 @@ I calculate the FID Score based on [EDM](https://github.com/NVlabs/edm).
 config:  
 - seeds=0-49999  
 - network=https://nvlabs-fi-cdn.nvidia.com/edm/pretrained/edm-cifar10-32x32-cond-vp.pkl  
-- NFE=36
+- NFE=30
   
-| Sampler | FID |
-| :-----: | :----: |
-| Euler[36] | 3.66024 | 
-| Heun[18] | 7.02495 |  
-| Heun[9]Euler[18] | 4.60633 | 
-| Heun[12]DPM++2M[12] | 2.16356 |  
+| Sampler[steps] | Type | FID | 
+| :-----: | :----: | :----: |
+| Euler[30] | Global ODE | 4.20923 | 
+| Heun[16] | Global ODE | 8.8082 |
+| DPM++2M[30] | Global ODE | 2.06226 |
+| DPM2[16] | Global ODE | 1.94304 |
+| Euler a[30] | Global SDE | 14.5688 |
+| DPM2 a[16] | Global SDE | 3.58586 |
+| DPM++ 2S a[16] | Global SDE | 9.74262 |
+| DPM++ SDE[16] | Global SDE | 17.807 |
+| Heun[10] - DPM2[5] | Sampler Scheduler ODE | 1.86846 |
+| DPM2 a[10] - DPM2[5] | Sampler Scheduler SDE+ODE | 1.84535 |
 
 Discretely scheduling different samplers during the sampling process has proven to be effective at a practical level.
   
@@ -100,6 +106,16 @@ Sampler Scheduler Parameters:
 | Sampler3 | Euler | 10 steps |  
 
 *Seniorious and Seniorious Karras use the same parameters in this example
+
+![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example3.png)  
+
+Sampler Scheduler Parameters:  
+| Unit | Sampler | Steps |
+| :-----:| :----: | :----: |
+| Sampler1 | DPM2 a | 20 steps |
+| Sampler2 | DPM2 | 10 steps |
+
+I recommend to use SDE in the early sampling steps and ODE in the later sampling steps to solve the inherent problems previously caused by using either singly.
 
 ## More
 The idea of this extension was inspired by Seniorious, a Carillon composed of different talismans.  
