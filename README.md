@@ -32,7 +32,7 @@ The image generation process will follow the configurations of these 8 units in 
 
 **Attention: The total steps should be equal to the sum of the steps in every unit!**  
 Open the `Check` accordion and press the `Check` button to check total steps.   
-`Total steps in Seniorious` shows the sum of steps in your Sampler Scheduler Settings and `Total steps required` shows the steps you set in webui.They must be equal.  
+`Total steps in Seniorious` shows the sum of steps in your Sampler Scheduler Settings and `Total steps required` shows the steps you set in webui. They must be equal.  
 
 <img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/v1.1/images/check_ui.png" width="500px">
 
