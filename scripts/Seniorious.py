@@ -114,7 +114,7 @@ class Script(scripts.Script):
                         step.change(update_info,
                                     inputs=[sampler, step, index],
                                     outputs=[])
-                with gr.Accordion("Check Step Number", open=False):
+                with gr.Accordion("Check", open=False):
                     with FormRow(variant="compact"):
                         seniorious_steps = gr.Textbox(label="Total steps in Seniorious")
                         sd_steps = gr.Textbox(label="Total steps Required")
