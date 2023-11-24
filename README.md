@@ -20,8 +20,7 @@ Choose the Sampler `Seniorious` or `Seniorious Karras` to enable the samplers sc
 *`Seniorious` uses nomal noise scheduler and `Seniorious Karras` uses the noise scheduler  
 recommended in [Elucidating the Design Space of Diffusion-Based Generative Models](https://arxiv.org/abs/2206.00364) (Karras et al., 2022)  
 
-![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example0.PNG)
-
+<img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/v1.1/images/samplers_ui.png" width="500px">
 
 This samplers scheduler provides 8 sampler units (Sampler 1-8). 
 
@@ -29,10 +28,17 @@ You can choose what kind of sampler used in each unit(choose `None` to unable), 
 
 The image generation process will follow the configurations of these 8 units in sequence. 
 
-**Attention: The total steps should be equal to the sum of the steps in every unit!**
+<img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/v1.1/images/scheduler_ui.png" width="500px">
 
+**Attention: The total steps should be equal to the sum of the steps in every unit!**  
+Open the `Check` accordion and press the `Check` button to check total steps.   
+`Total steps in Seniorious` shows the sum of steps in your Sampler Scheduler Settings and `Total steps required` shows the steps you set in webui. They must be equal.  
 
-![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example1.PNG)
+<img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/v1.1/images/check_ui.png" width="500px">
+
+If you use Sampler Scheduler Seniorious, the `Sampler Scheduler Config` will be added to the png_info
+
+<img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/v1.1/images/png_info.png" width="500px">
 
 ## Available Samplers
 13 kinds of mainstream samplers in [k-diffusion](https://github.com/crowsonkb/k-diffusion) are available:  

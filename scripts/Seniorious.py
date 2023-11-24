@@ -4,15 +4,16 @@ import functools
 import torch
 from torch import nn
 
-from modules import shared
+import gradio as gr
+
 import k_diffusion.sampling
 from scripts.ksampler import sample_euler,sample_euler_ancestral,sample_heun,sample_heunpp2,sample_lms,sample_dpm_2,sample_dpm_2_ancestral,sample_dpmpp_2s_ancestral,sample_dpmpp_sde,sample_dpmpp_2m,sample_dpmpp_2m_sde,sample_dpmpp_3m_sde,restart_sampler,sample_skip
 
 from modules import sd_samplers, sd_samplers_common
 import modules.sd_samplers_kdiffusion as K
 import modules.scripts as scripts
+from modules import processing
 from modules import shared, script_callbacks
-import gradio as gr
 import modules.ui
 from modules.ui_components import ToolButton, FormRow
 
@@ -22,6 +23,7 @@ MAX_SAMPLER_COUNT=8
 
 ui_info = [(None, 0) for i in range(MAX_SAMPLER_COUNT)]
 
+# 'DPM fast', 'DPM adaptive',
 samplers_list = ['Euler','Euler a', 'Heun', 'Heun++',
                  'LMS',
                  'DPM2','DPM2 a',
@@ -61,11 +63,35 @@ class Script(scripts.Script):
     def show(self, is_img2img):
         return scripts.AlwaysVisible
 
+    def after_component(self, component, **kwargs):
+        # https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/7456#issuecomment-1414465888 helpfull link
+        # Find the text2img textbox component
+        if kwargs.get("elem_id") == "txt2img_steps":  # postive prompt textbox
+            self.sys_steps = component.value
+        # Find the img2img textbox component
+        if kwargs.get("elem_id") == "img2img_steps":  # postive prompt textbox
+            self.sys_steps = component.value
+
+        # this code below  works aswell, you can send negative prompt text box,provided you change the code a little
+        # switch  self.boxx with  self.neg_prompt_boxTXT  and self.boxxIMG with self.neg_prompt_boxIMG
+
+        # if kwargs.get("elem_id") == "txt2img_neg_prompt":
+        # self.neg_prompt_boxTXT = component
+        # if kwargs.get("elem_id") == "img2img_neg_prompt":
+        # self.neg_prompt_boxIMG = component
+
     def ui(self, is_img2img):
+
         def update_info(sampler, step, i):
             ui_info[i] = (sampler, int(step))
             if sampler == 'None':
                 ui_info[i] = (None, 0)
+
+        def get_info_total_steps():
+            return sum([s[1] for s in ui_info])
+
+        def get_sd_total_steps():
+            return self.sys_steps
 
         with gr.Group():
             with gr.Accordion("Samplers Scheduler Seniorious", open=False):
@@ -88,8 +114,13 @@ class Script(scripts.Script):
                         step.change(update_info,
                                     inputs=[sampler, step, index],
                                     outputs=[])
-
-
+                with gr.Accordion("Check", open=False):
+                    with FormRow(variant="compact"):
+                        seniorious_steps = gr.Textbox(label="Total steps in Seniorious")
+                        sd_steps = gr.Textbox(label="Total steps Required")
+                        btn = gr.Button(value="Check")
+                        btn.click(get_info_total_steps, inputs=[], outputs=[seniorious_steps])
+                        btn.click(get_sd_total_steps, inputs=[], outputs=[sd_steps])
         return None
 
 #==================================================================================
@@ -111,10 +142,12 @@ def get_samplers_steps():
             result.append(i)
     return result
 @torch.no_grad()
-def seniorious(model, x, sigmas, extra_args=None, callback=None, disable=None, s_churn=0., s_tmin=0., s_tmax=float('inf'), s_noise=1.):
+def seniorious(model, x, sigmas, extra_args=None, callback=None, disable=None, **kwargs):
     """Implements Algorithm 2 (Heun steps) from Karras et al. (2022)."""
     extra_args = {} if extra_args is None else extra_args
     callback_ = callback
+
+    print('Sampler Scheduler Settings:', end=' ')
     print(ui_info)
 
     samplers_steps = get_samplers_steps()
@@ -147,12 +180,37 @@ class KDiffusionSamplerLocal(K.KDiffusionSampler):
         self.last_latent = None
         self.options = options or {}
 
-        self.eta = None
+
+        self.eta = 1
         self.eta_option_field = 'eta_ancestral'
         self.eta_infotext_field = 'Eta'
         self.eta_default = 1.0
 
         self.conditioning_key = sd_model.model.conditioning_key
+
+    def initialize(self, p) -> dict:
+        self.p = p
+        self.model_wrap_cfg.p = p
+        self.model_wrap_cfg.mask = p.mask if hasattr(p, 'mask') else None
+        self.model_wrap_cfg.nmask = p.nmask if hasattr(p, 'nmask') else None
+        self.model_wrap_cfg.step = 0
+        self.model_wrap_cfg.image_cfg_scale = getattr(p, 'image_cfg_scale', None)
+
+        self.s_min_uncond = getattr(p, 's_min_uncond', 0.0)
+
+        self.s_churn = 0.0
+        self.s_tmin = 0.0
+        self.s_tmax = float('inf')
+        self.s_noise = 1.0
+
+
+        k_diffusion.sampling.torch = sd_samplers_common.TorchHijack(p)
+
+        extra_params_kwargs = {}
+        extra_params_kwargs["Sampler Scheduler Config"] = str(ui_info)
+        self.p.extra_generation_params["Sampler Scheduler Config"] = str(ui_info)
+        return extra_params_kwargs
+
 
 def add_seniorious():
     label = 'Seniorious'
