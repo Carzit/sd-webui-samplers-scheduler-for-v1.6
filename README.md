@@ -20,7 +20,7 @@ Choose the Sampler `Seniorious` or `Seniorious Karras` to enable the samplers sc
 *`Seniorious` uses nomal noise scheduler and `Seniorious Karras` uses the noise scheduler  
 recommended in [Elucidating the Design Space of Diffusion-Based Generative Models](https://arxiv.org/abs/2206.00364) (Karras et al., 2022)  
 
-![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example0.PNG)
+![](https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/v1.1/images/samplers_ui.png)
 
 
 This samplers scheduler provides 8 sampler units (Sampler 1-8). 
@@ -29,10 +29,10 @@ You can choose what kind of sampler used in each unit(choose `None` to unable), 
 
 The image generation process will follow the configurations of these 8 units in sequence. 
 
+![](https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/v1.1/images/scheduler_ui.png)
+
 **Attention: The total steps should be equal to the sum of the steps in every unit!**
 
-
-![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example1.PNG)
 
 ## Available Samplers
 13 kinds of mainstream samplers in [k-diffusion](https://github.com/crowsonkb/k-diffusion) are available:  
