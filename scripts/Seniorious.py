@@ -7,7 +7,7 @@ from torch import nn
 import gradio as gr
 
 import k_diffusion.sampling
-from scripts.ksampler import sample_euler,sample_euler_ancestral,sample_heun,sample_heunpp2,sample_lms,sample_dpm_2,sample_dpm_2_ancestral,sample_dpmpp_2s_ancestral,sample_dpmpp_sde,sample_dpmpp_2m,sample_dpmpp_2m_sde,sample_dpmpp_3m_sde,restart_sampler,sample_skip
+from scripts.ksampler import sample_euler,sample_euler_ancestral,sample_heun,sample_heunpp2,sample_lms,sample_dpm_2,sample_dpm_2_ancestral,sample_dpmpp_2s_ancestral,sample_dpmpp_sde,sample_dpmpp_2m,sample_dpmpp_2m_sde,sample_dpmpp_3m_sde,lcm_sampler,restart_sampler,sample_skip
 
 from modules import sd_samplers, sd_samplers_common
 import modules.sd_samplers_kdiffusion as K
@@ -29,7 +29,7 @@ samplers_list = ['Euler','Euler a', 'Heun', 'Heun++',
                  'DPM2','DPM2 a',
                  'DPM++ 2S a','DPM++ SDE',
                  'DPM++ 2M', 'DPM++ 2M SDE', 'DPM++ 3M SDE',
-                 'Restart',
+                 'LCM', 'Restart',
                  'Skip',
                  'None']
 
@@ -45,6 +45,7 @@ name2sampler_func = {'Euler':sample_euler,
                      'DPM++ 2M':sample_dpmpp_2m,
                      'DPM++ 2M SDE':sample_dpmpp_2m_sde,
                      'DPM++ 3M SDE':sample_dpmpp_3m_sde,
+                     'LCM':lcm_sampler,
                      'Restart':restart_sampler,
                      'Skip':sample_skip,
                      'None':None
@@ -66,19 +67,11 @@ class Script(scripts.Script):
     def after_component(self, component, **kwargs):
         # https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/7456#issuecomment-1414465888 helpfull link
         # Find the text2img textbox component
-        if kwargs.get("elem_id") == "txt2img_steps":  # postive prompt textbox
-            self.sys_steps = component.value
+        if kwargs.get("elem_id") == "txt2img_steps":
+            self.t2i_steps = component
         # Find the img2img textbox component
-        if kwargs.get("elem_id") == "img2img_steps":  # postive prompt textbox
-            self.sys_steps = component.value
-
-        # this code below  works aswell, you can send negative prompt text box,provided you change the code a little
-        # switch  self.boxx with  self.neg_prompt_boxTXT  and self.boxxIMG with self.neg_prompt_boxIMG
-
-        # if kwargs.get("elem_id") == "txt2img_neg_prompt":
-        # self.neg_prompt_boxTXT = component
-        # if kwargs.get("elem_id") == "img2img_neg_prompt":
-        # self.neg_prompt_boxIMG = component
+        if kwargs.get("elem_id") == "img2img_steps":
+            self.i2i_steps = component
 
     def ui(self, is_img2img):
 
@@ -91,7 +84,10 @@ class Script(scripts.Script):
             return sum([s[1] for s in ui_info])
 
         def get_sd_total_steps():
-            return self.sys_steps
+            if is_img2img:
+                return self.i2i_steps
+            else:
+                return self.t2i_steps
 
         with gr.Group():
             with gr.Accordion("Samplers Scheduler Seniorious", open=False):
@@ -120,7 +116,7 @@ class Script(scripts.Script):
                         sd_steps = gr.Textbox(label="Total steps Required")
                         btn = gr.Button(value="Check")
                         btn.click(get_info_total_steps, inputs=[], outputs=[seniorious_steps])
-                        btn.click(get_sd_total_steps, inputs=[], outputs=[sd_steps])
+                        btn.click(lambda x:x, inputs=[get_sd_total_steps()], outputs=[sd_steps])
         return None
 
 #==================================================================================
