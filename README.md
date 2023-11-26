@@ -41,7 +41,7 @@ If you use Sampler Scheduler Seniorious, the `Sampler Scheduler Config` will be 
 <img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/main/images/png_info.png" width="500px">
 
 ## Available Samplers
-13 kinds of mainstream samplers in [k-diffusion](https://github.com/crowsonkb/k-diffusion) are available:  
+14 kinds of mainstream samplers in [k-diffusion](https://github.com/crowsonkb/k-diffusion) are available:  
 
 - `Euler`
 - `Euler a`
