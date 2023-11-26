@@ -36,7 +36,7 @@ Open the `Check` accordion and press the `Check` button to check total steps.
 
 <img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/main/images/check_ui.png" width="500px">
 
-If you use Sampler Scheduler Seniorious, the `Sampler Scheduler Config` will be added to the png_info
+If you use Sampler Scheduler Seniorious, the `Sampler Scheduler Config` will be added to the `png_info`.
 
 <img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/main/images/png_info.png" width="500px">
 
@@ -46,7 +46,7 @@ If you use Sampler Scheduler Seniorious, the `Sampler Scheduler Config` will be 
 - `Euler`
 - `Euler a`
 - `Heun`
-- `Heun++` (my test version)
+- `Heun++`
 - `LMS`
 - `DPM2`
 - `DPM2 a`
@@ -55,9 +55,14 @@ If you use Sampler Scheduler Seniorious, the `Sampler Scheduler Config` will be 
 - `DPM++ 2M`
 - `DPM++ 2M SDE`
 - `DPM++ 3M SDE`
-- `Restart` (from https://github.com/Newbeeer/diffusion_restart_sampling, using the recommended hyperparameters)
+- `Restart` 
+- `LCM`
 
 You can also choose `Skip` to skip certain steps.  
+
+`Heun++` is my [test version](https://github.com/Carzit/sd-webui-sampler-heunpp).  
+`Restart` is a new sampler in SD WebUI since version 1.6, using the recommended hyperparameters recommended in [Implements restart sampling in Restart Sampling for Improving Generative Processes](https://arxiv.org/abs/2306.14878).  
+`LCM` is a new sampler used in latent consistency model(LCM).  
 
 ## FID Result
 I calculate the FID Score based on [EDM](https://github.com/NVlabs/edm).
@@ -112,7 +117,7 @@ Sampler Scheduler Parameters:
 | Sampler2 | DPM++2M | 10 steps |
 | Sampler3 | Euler | 10 steps |  
 
-*Seniorious and Seniorious Karras use the same parameters in this example
+*Seniorious and Seniorious Karras use the same parameters in this example.
 
 ![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example3.png)  
 
