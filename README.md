@@ -88,9 +88,11 @@ config:
 Discretely scheduling different samplers during the sampling process has proven to be effective at a practical level.
   
 ## Examples
-![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example2.png)  
 
 ### ODE Samplers
+
+![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example2.png)  
+
 BRISQUE Score: 
 | Sampler | BRISQUE |
 | :-----:| :----: |
@@ -136,7 +138,11 @@ Like other implemented sampling algorithms, I added the LCM sampler as a sampler
 But obviously the iteration formula of LCM sampler $x_{i+1} = D_\theta(x_{i}) + \sigma_{i+1}	\epsilon_i$ is different from those of traditional LDM samplers.   
 Ignoring its coupling with the LCM model and using it rashly as a plug-in sampler for LDM may cause some problems, such as blurring at the edge of the image.
 
-In addition, based on some of my experience, I recommend using LCM sampler at later sampling steps rather than at the beginning.
+<img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/main/images/example_lcm1.png" width="200px"><img src="https://github.com/Carzit/sd-webui-samplers-scheduler-for-v1.6/blob/main/images/example_lcm2.png" width="200px">
+
+
+Moreover, based on some of my experience, I recommend using LCM sampler at later sampling steps rather than at the beginning.  
+In figures above, with other parameters fixed, the left uses 12-step `Euler a` + 8-step `LCM` while the right uses 8-step `LCM` + 12-step `Euler a`.
 
 
 ## More
