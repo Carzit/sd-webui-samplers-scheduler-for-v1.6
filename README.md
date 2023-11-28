@@ -87,9 +87,10 @@ config:
 
 Discretely scheduling different samplers during the sampling process has proven to be effective at a practical level.
   
-## Example
+## Examples
 ![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example2.png)  
 
+### ODE Samplers
 BRISQUE Score: 
 | Sampler | BRISQUE |
 | :-----:| :----: |
@@ -119,6 +120,7 @@ Sampler Scheduler Parameters:
 
 *Seniorious and Seniorious Karras use the same parameters in this example.
 
+### Put ODE and SDE Samplers Together
 ![](https://github.com/Carzit/sd-webui-samplers-scheduler/blob/main/images/example3.png)  
 
 Sampler Scheduler Parameters:  
@@ -128,6 +130,14 @@ Sampler Scheduler Parameters:
 | Sampler2 | DPM2 | 10 steps |
 
 I recommend to use SDE in the early sampling steps and ODE in the later sampling steps to solve the inherent problems previously caused by using either singly.
+
+### About LCM Sampler
+Like other implemented sampling algorithms, I added the LCM sampler as a sampler option to our Sampler Scheduler.  
+But obviously the iteration formula of LCM sampler $x_{i+1} = D_\theta(x_{i}) + \sigma_{i+1}	\epsilon_i$ is different from those of traditional LDM samplers.   
+Ignoring its coupling with the LCM model and using it rashly as a plug-in sampler for LDM may cause some problems, such as blurring at the edge of the image.
+
+In addition, based on some of my experience, I recommend using LCM sampler at later sampling steps rather than at the beginning.
+
 
 ## More
 The idea of this extension was inspired by Seniorious, a Carillon composed of different talismans.  
