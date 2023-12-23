@@ -7,8 +7,7 @@ from torch import nn
 import gradio as gr
 
 import k_diffusion.sampling
-from scripts.ksampler import sample_euler,sample_euler_ancestral,sample_heun,sample_heunpp2,sample_lms,sample_dpm_2,sample_dpm_2_ancestral,sample_dpmpp_2s_ancestral,sample_dpmpp_sde,sample_dpmpp_2m,sample_dpmpp_2m_sde,sample_dpmpp_3m_sde,lcm_sampler,restart_sampler,sample_skip
-
+from scripts.ksampler import *
 from modules import sd_samplers, sd_samplers_common
 import modules.sd_samplers_kdiffusion as K
 import modules.scripts as scripts
@@ -17,13 +16,17 @@ from modules import shared, script_callbacks
 import modules.ui
 from modules.ui_components import ToolButton, FormRow
 
+try:
+    from modules.sd_samplers_kdiffusion import CFGDenoiserKDiffusion as cfgdenoisekdiff
+except Exception as e:
+    from modules.sd_samplers_kdiffusion import CFGDenoiser as cfgdenoisekdiff
+
 
 
 MAX_SAMPLER_COUNT=8
 
 ui_info = [(None, 0) for i in range(MAX_SAMPLER_COUNT)]
 
-# 'DPM fast', 'DPM adaptive',
 samplers_list = ['Euler','Euler a', 'Heun', 'Heun++',
                  'LMS',
                  'DPM2','DPM2 a',
@@ -65,11 +68,8 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
 
     def after_component(self, component, **kwargs):
-        # https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/7456#issuecomment-1414465888 helpfull link
-        # Find the text2img textbox component
         if kwargs.get("elem_id") == "txt2img_steps":
             self.t2i_steps = component
-        # Find the img2img textbox component
         if kwargs.get("elem_id") == "img2img_steps":
             self.i2i_steps = component
 
@@ -114,9 +114,9 @@ class Script(scripts.Script):
                     with FormRow(variant="compact"):
                         seniorious_steps = gr.Textbox(label="Total steps in Seniorious")
                         sd_steps = gr.Textbox(label="Total steps Required")
-                        btn = gr.Button(value="Check")
-                        btn.click(get_info_total_steps, inputs=[], outputs=[seniorious_steps])
-                        btn.click(lambda x:x, inputs=[get_sd_total_steps()], outputs=[sd_steps])
+                        check_btn = gr.Button(value="Check")
+                        check_btn.click(get_info_total_steps, inputs=[], outputs=[seniorious_steps])
+                        check_btn.click(lambda x:x, inputs=[get_sd_total_steps()], outputs=[sd_steps])
         return None
 
 #==================================================================================
@@ -127,8 +127,14 @@ def split_sigmas(sigmas, steps):
     start = 0
     for num in steps:
         end = start + num
-        result.append(sigmas[start:end+1])
-        start = end
+        s = sigmas[start:end+1]
+        if not s.numel():
+            break
+        if not s[0]:
+            break
+        else:
+            result.append(s)
+            start = end
     return result
 
 def get_samplers_steps():
@@ -150,11 +156,11 @@ def seniorious(model, x, sigmas, extra_args=None, callback=None, disable=None, *
     samplers_steps = [(name2sampler_func[sampler_step[0]], int(sampler_step[1])) for sampler_step in samplers_steps]
     samplers = [sampler_step[0] for sampler_step in samplers_steps]
     steps = [sampler_step[1] for sampler_step in samplers_steps]
-    splitted_sigmas = split_sigmas(sigmas.tolist(), steps)
+    splitted_sigmas = split_sigmas(sigmas, steps)
     x_ = x
 
     for i in range(len(splitted_sigmas)):
-        s = torch.tensor(splitted_sigmas[i], device='cuda:0')
+        s = splitted_sigmas[i]
         x_ = samplers[i](model=model, x=x_, sigmas=s, extra_args=extra_args, callback=callback_)
 
     return x_
@@ -168,7 +174,7 @@ class KDiffusionSamplerLocal(K.KDiffusionSampler):
         self.funcname = funcname
         self.func = seniorious
         self.extra_params = []
-        self.model_wrap_cfg = K.CFGDenoiserKDiffusion(self)
+        self.model_wrap_cfg = cfgdenoisekdiff(self)
         self.model_wrap = self.model_wrap_cfg.inner_model
         self.sampler_noises = None
         self.stop_at = None
